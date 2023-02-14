@@ -8,6 +8,6 @@ try {
   } else {
     info("Configured to not show card upon job start.");
   }
-} catch (error) {
+} catch (error: any) {
   setFailed(error.message);
 }

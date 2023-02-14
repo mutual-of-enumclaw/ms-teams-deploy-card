@@ -17,8 +17,8 @@
   "devDependencies": {
     "@types/moment-timezone": "^0.5.12",
     "@types/node-fetch": "^2.5.4",
-    "@zeit/ncc": "^0.21.0",
-    "typescript": "^3.7.5"
+    "@vercel/ncc": "^0.36.1",
+    "typescript": "^4.9.5"
   },
   "scripts": {
     "ncc": "ncc build src/index.ts -m -o dist/main && ncc build src/post.ts -m -o dist/post"
