@@ -17,7 +17,7 @@ jobs:
       #     timezone: Australia/Sydney
 
       - name: Microsoft Teams Deploy Card
-        uses: ./
+        uses: mutual-of-enumclaw/ms-teams-deploy-card@main
         if: always()
         with:
           github-token: ${{ github.token }}
