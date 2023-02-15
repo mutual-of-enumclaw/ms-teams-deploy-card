@@ -35612,6 +35612,7 @@ async function getWorkflowRunStatus() {
         repo: runInfo.repo,
         run_id: parseInt(runInfo.runId || "1"),
     });
+    octokit.log.debug("workflowJobs:", workflowJobs);
     let lastStep = {};
     let jobStartDate;
     /**
@@ -35628,6 +35629,7 @@ async function getWorkflowRunStatus() {
      * <success>, <cancelled>, <failure> and <skipped>
      */
     let abort = false;
+    octokit.log.debug('Looping through jobs in workflow');
     for (let job of workflowJobs.data.jobs) {
         for (let step of job.steps) {
             // check if current step still running
@@ -35636,6 +35638,7 @@ async function getWorkflowRunStatus() {
                 jobStartDate = job.started_at;
                 // Some step/job has failed. Get out from here.
                 if ((step === null || step === void 0 ? void 0 : step.conclusion) !== "success" && (step === null || step === void 0 ? void 0 : step.conclusion) !== "skipped") {
+                    octokit.log.debug('Step failed', step);
                     abort = true;
                     break;
                 }
@@ -35652,6 +35655,7 @@ async function getWorkflowRunStatus() {
     }
     const startTime = (0, moment_1.default)(jobStartDate, moment_1.default.ISO_8601);
     const endTime = (0, moment_1.default)(lastStep === null || lastStep === void 0 ? void 0 : lastStep.completed_at, moment_1.default.ISO_8601);
+    octokit.log.debug('End getWorkflowRunStatus');
     return {
         elapsedSeconds: endTime.diff(startTime, "seconds"),
         conclusion: lastStep === null || lastStep === void 0 ? void 0 : lastStep.conclusion,

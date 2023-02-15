@@ -124,7 +124,7 @@ export async function getWorkflowRunStatus() {
     repo: runInfo.repo,
     run_id: parseInt(runInfo.runId || "1"),
   });
-
+  octokit.log.debug("workflowJobs:", workflowJobs);
   let lastStep = {} as Octokit.ActionsListJobsForWorkflowRunResponseJobsItemStepsItem
   let jobStartDate
 
@@ -141,7 +141,8 @@ export async function getWorkflowRunStatus() {
    * The conclusion steps, according to the documentation, are:
    * <success>, <cancelled>, <failure> and <skipped>
    */
-  let abort = false
+  let abort = false;
+  octokit.log.debug('Looping through jobs in workflow');
   for (let job of workflowJobs.data.jobs) {
     for (let step of job.steps) {
       // check if current step still running
@@ -150,6 +151,7 @@ export async function getWorkflowRunStatus() {
         jobStartDate = job.started_at
         // Some step/job has failed. Get out from here.
         if (step?.conclusion !== "success" && step?.conclusion !== "skipped") {
+          octokit.log.debug('Step failed', step);
           abort = true
           break
         }
@@ -165,7 +167,8 @@ export async function getWorkflowRunStatus() {
   }
   const startTime = moment(jobStartDate, moment.ISO_8601);
   const endTime = moment(lastStep?.completed_at, moment.ISO_8601);
-
+  
+  octokit.log.debug('End getWorkflowRunStatus');
   return {
     elapsedSeconds: endTime.diff(startTime, "seconds"),
     conclusion: lastStep?.conclusion,
