@@ -48,6 +48,12 @@ export async function getOctokitCommit() {
       }
     });
 
+  octokit.log.debug("getCommit: ", {
+    owner: runInfo.owner,
+    repo: runInfo.repo,
+    ref: runInfo.ref || "",
+  });
+
   return await octokit.repos.getCommit({
     owner: runInfo.owner,
     repo: runInfo.repo,
@@ -106,6 +112,11 @@ export async function getWorkflowRunStatus() {
       warn: console.warn,
       error: console.error
     } 
+  });
+  octokit.log.debug("listJobsForWorkflowRun:", {
+    owner: runInfo.owner,
+    repo: runInfo.repo,
+    run_id: parseInt(runInfo.runId || "1"),
   });
   const workflowJobs = await octokit.actions.listJobsForWorkflowRun({
     owner: runInfo.owner,
