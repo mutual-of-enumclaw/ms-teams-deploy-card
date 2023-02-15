@@ -21,6 +21,6 @@
     "typescript": "^4.9.5"
   },
   "scripts": {
-    "ncc": "ncc build src/index.ts -m -o dist/main && ncc build src/post.ts -m -o dist/post"
+    "ncc": "ncc build src/index.ts -s -o dist/main && ncc build src/post.ts -s -o dist/post"
   }
 }

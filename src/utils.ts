@@ -37,7 +37,16 @@ export async function getOctokitCommit() {
   info("Workflow run information: " + JSON.stringify(runInfo, undefined, 2));
 
   const githubToken = getInput("github-token", { required: true });
-  const octokit = new Octokit({ auth: `token ${githubToken}`, baseUrl: `${process.env.GITHUB_API_URL}` });
+  const octokit = new Octokit({ 
+      auth: `token ${githubToken}`, 
+      baseUrl: `${process.env.GITHUB_API_URL}`,
+      log: {
+        debug: console.debug,
+        info: console.log,
+        warn: console.warn,
+        error: console.error
+      }
+    });
 
   return await octokit.repos.getCommit({
     owner: runInfo.owner,
@@ -88,7 +97,16 @@ export async function formatAndNotify(
 export async function getWorkflowRunStatus() {
   const runInfo = getRunInformation();
   const githubToken = getInput("github-token", { required: true });
-  const octokit = new Octokit({ auth: `token ${githubToken}`, baseUrl: `${process.env.GITHUB_API_URL}` });
+  const octokit = new Octokit({ 
+    auth: `token ${githubToken}`, 
+    baseUrl: `${process.env.GITHUB_API_URL}`,
+    log: {
+      debug: console.debug,
+      info: console.log,
+      warn: console.warn,
+      error: console.error
+    } 
+  });
   const workflowJobs = await octokit.actions.listJobsForWorkflowRun({
     owner: runInfo.owner,
     repo: runInfo.repo,
@@ -112,29 +130,29 @@ export async function getWorkflowRunStatus() {
    * <success>, <cancelled>, <failure> and <skipped>
    */
   let abort = false
-  for(let job of workflowJobs.data.jobs) {
-    for(let step of job.steps) {
+  for (let job of workflowJobs.data.jobs) {
+    for (let step of job.steps) {
       // check if current step still running
       if (step.completed_at !== null) {
         lastStep = step
         jobStartDate = job.started_at
         // Some step/job has failed. Get out from here.
         if (step?.conclusion !== "success" && step?.conclusion !== "skipped") {
-            abort = true
-            break
+          abort = true
+          break
         }
-       /**  
-        * If nothing has failed, so we have a success scenario
-        * @note ignoring skipped cases. 
-        */
+        /**  
+         * If nothing has failed, so we have a success scenario
+         * @note ignoring skipped cases. 
+         */
         lastStep.conclusion = "success"
       }
     }
     // // Some step/job has failed. Get out from here.
     if (abort) break
-   }
+  }
   const startTime = moment(jobStartDate, moment.ISO_8601);
-  const endTime = moment(lastStep?.completed_at, moment.ISO_8601); 
+  const endTime = moment(lastStep?.completed_at, moment.ISO_8601);
 
   return {
     elapsedSeconds: endTime.diff(startTime, "seconds"),
