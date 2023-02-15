@@ -35532,7 +35532,21 @@ async function getOctokitCommit() {
     const runInfo = getRunInformation();
     (0, core_1.info)("Workflow run information: " + JSON.stringify(runInfo, undefined, 2));
     const githubToken = (0, core_1.getInput)("github-token", { required: true });
-    const octokit = new rest_1.Octokit({ auth: `token ${githubToken}`, baseUrl: `${process.env.GITHUB_API_URL}` });
+    const octokit = new rest_1.Octokit({
+        auth: `token ${githubToken}`,
+        baseUrl: `${process.env.GITHUB_API_URL}`,
+        log: {
+            debug: console.debug,
+            info: console.log,
+            warn: console.warn,
+            error: console.error
+        }
+    });
+    octokit.log.debug("getCommit: ", {
+        owner: runInfo.owner,
+        repo: runInfo.repo,
+        ref: runInfo.ref || "",
+    });
     return await octokit.repos.getCommit({
         owner: runInfo.owner,
         repo: runInfo.repo,
@@ -35543,6 +35557,7 @@ exports.getOctokitCommit = getOctokitCommit;
 function submitNotification(webhookBody) {
     const webhookUri = (0, core_1.getInput)("webhook-uri", { required: true });
     const webhookBodyJson = JSON.stringify(webhookBody, undefined, 2);
+    (0, core_1.debug)(`submitNotification: ${webhookUri}`);
     return (0, node_fetch_1.default)(webhookUri, {
         method: "POST",
         headers: {
@@ -35577,7 +35592,21 @@ exports.formatAndNotify = formatAndNotify;
 async function getWorkflowRunStatus() {
     const runInfo = getRunInformation();
     const githubToken = (0, core_1.getInput)("github-token", { required: true });
-    const octokit = new rest_1.Octokit({ auth: `token ${githubToken}`, baseUrl: `${process.env.GITHUB_API_URL}` });
+    const octokit = new rest_1.Octokit({
+        auth: `token ${githubToken}`,
+        baseUrl: `${process.env.GITHUB_API_URL}`,
+        log: {
+            debug: console.debug,
+            info: console.log,
+            warn: console.warn,
+            error: console.error
+        }
+    });
+    octokit.log.debug("listJobsForWorkflowRun:", {
+        owner: runInfo.owner,
+        repo: runInfo.repo,
+        run_id: parseInt(runInfo.runId || "1"),
+    });
     const workflowJobs = await octokit.actions.listJobsForWorkflowRun({
         owner: runInfo.owner,
         repo: runInfo.repo,

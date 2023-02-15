@@ -1,5 +1,5 @@
 import { Octokit } from "@octokit/rest";
-import { setOutput, info, getInput, warning } from "@actions/core";
+import { setOutput, info, getInput, warning, debug } from "@actions/core";
 import fetch, { Response } from "node-fetch";
 import moment from "moment";
 import yaml from "yaml";
@@ -64,7 +64,7 @@ export async function getOctokitCommit() {
 export function submitNotification(webhookBody: WebhookBody) {
   const webhookUri = getInput("webhook-uri", { required: true });
   const webhookBodyJson = JSON.stringify(webhookBody, undefined, 2);
-
+  debug(`submitNotification: ${webhookUri}`);
   return fetch(webhookUri, {
     method: "POST",
     headers: {
@@ -85,10 +85,11 @@ export async function formatAndNotify(
   conclusion = "in_progress",
   elapsedSeconds?: number
 ) {
+
   let webhookBody: WebhookBody;
   const commit = await getOctokitCommit();
   const cardLayoutStart = getInput(`card-layout-${state}`);
-
+  
   if (cardLayoutStart === "compact") {
     webhookBody = formatCompactLayout(commit, conclusion, elapsedSeconds);
   } else if (cardLayoutStart === "cozy") {

@@ -1,18 +1,20 @@
-import { setFailed, info, getInput } from "@actions/core";
+import { setFailed, info, getInput, debug, error } from "@actions/core";
 import { formatAndNotify, getWorkflowRunStatus } from "./utils";
 
 try {
+  debug("Starting post job");
   // setTimeout to give time for Github API to show up the final conclusion
   setTimeout(async () => {
     const showCardOnExit = getInput(`show-on-exit`).toLowerCase() === "true";
     const showCardOnFailure =
       getInput(`show-on-failure`).toLowerCase() === "true";
-
+    debug("Getting workflow run status");
     const workflowRunStatus = await getWorkflowRunStatus();
     if (
       (showCardOnExit && !showCardOnFailure) ||
       (showCardOnFailure && workflowRunStatus?.conclusion !== "success")
     ) {
+      debug("Formatting message and notifying");
       formatAndNotify(
         "exit",
         workflowRunStatus?.conclusion,
@@ -23,5 +25,6 @@ try {
     }
   }, 2000);
 } catch (error: any) {
+  error(error.message);
   setFailed(error.message);
 }
